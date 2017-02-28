@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<title>lazyMan</title>
+</head>
+<body>
+<script type="text/javascript">
+	(function(window,undefined){
+		var taskList = [];
+
+		function LazyMan(){}
+
+		LazyMan.prototype.eat = function(str){
+			subscribe("eat",str);
+			return this;
+		}
+
+		LazyMan.prototype.sleep = function(num){
+			subscribe("sleep",num);
+			return this;
+		}
+
+		LazyMan.prototype.sleepFirst = function(num){
+			subscribe("sleepFirst",num);
+			return this;
+		}
+
+
+		function subscribe(){
+			var param = {},
+				args = Array.prototype.slice.call(arguments);
+
+			if(args.length<1){
+				throw new Error('subscribe parameter cannot be null!');
+			}
+			param.msg = args[0];
+			param.args = args.slice(1);
+
+			if(param.msg == 'sleepFirst'){
+				taskList.unshift(param);
+			}
+			else{
+				taskList.push(param);
+			}
+		}
+
+		function publish(){
+			if(taskList.length>0){
+				run(taskList.shift());
+			}
+		}
+
+		function run(option){
+			var msg = option.msg,
+				args = option.args;
+			switch(msg){
+				case "lazyMan": 
+					lazyMan.apply(null, args);
+					break;
+				case "eat": 
+					eat.apply(null, args);
+					break;
+				case "sleep": 
+					sleep.apply(null,args);
+					break;
+				case "sleepFirst": 
+					sleepFirst.apply(null,args);
+					break;
+				default:;
+			}
+		}
+
+		function lazyMan(str){
+			lazyManLog("Hi!This is "+ str +"!");
+			publish();
+		}
+		function eat(str){
+			lazyManLog("Eat "+ str +"~");
+			publish();
+		}
+		function sleep(num){
+			setTimeout(function(){
+				lazyManLog("Wake up after "+ num);
+				publish();
+			}, num*1000);
+			
+		}
+		function sleepFirst(num){
+			setTimeout(function(){
+				lazyManLog("Wake up after "+ num);
+				publish();
+			}, num*1000);
+		}
+		// 输出文字
+		function lazyManLog(str){
+			console.log(str);
+		}
+
+		window.LazyMan = function(str){
+			subscribe("lazyMan", str);
+			setTimeout(function(){
+				publish();
+			}, 0);
+			return new LazyMan();
+		};
+
+	})(window);
+	//new LazyMan("Cookie").sleep(5).eat("Lunch");
+</script>
+</body>
+</html>
+
+
